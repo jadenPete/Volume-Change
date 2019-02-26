@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
+import os
 import socket
 import subprocess
-import os
 
 import gi
 gi.require_version("Notify", "0.7")
-from gi.repository import Notify, GLib
+from gi.repository import GLib, Notify
 
 def get_volume(command):
 	output = subprocess.getoutput(command)
