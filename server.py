@@ -36,7 +36,7 @@ def set_volume(volume):
 	notification.update(" ", icon = get_icon(volume, enabled))
 	notification.set_hint("value", GLib.Variant("i", volume))
 
-server_address = "/tmp/vc-server"
+server_address = "/tmp/volume-change"
 
 try:
 	os.unlink(server_address)
