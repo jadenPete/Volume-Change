@@ -2,8 +2,11 @@
 
 import socket
 import subprocess
+import os
 
-from gi.repository import GLib, Notify
+import gi
+gi.require_version("Notify", "0.7")
+from gi.repository import Notify, GLib
 
 def get_volume(command):
 	output = subprocess.getoutput(command)
@@ -24,19 +27,26 @@ def get_icon(volume, enabled):
 		icon += "medium"
 	else:
 		icon += "high"
-	
+
 	return icon
 
 def set_volume(volume):
 	volume, enabled = get_volume("amixer set Master " + volume)
 
 	notification.update(" ", icon = get_icon(volume, enabled))
-	notification.set_hint_int32("value", volume)
+	notification.set_hint("value", GLib.Variant("i", volume))
+
+server_address = "/tmp/vc-server"
+
+try:
+	os.unlink(server_address)
+except OSError:
+	if os.path.exists(server_address):
+		raise
 
 # Initialize the socket connection
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-server_socket.bind(("localhost", 2357))
+server_socket = socket.socket(socket.AF_UNIX)
+server_socket.bind(server_address)
 server_socket.listen(1)
 
 # Initialise the D-Bus connection
@@ -59,5 +69,4 @@ while True:
 			continue
 
 		# Prevent duplicate notifications
-		notification.close()
 		notification.show()
